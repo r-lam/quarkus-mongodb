@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Customer REST service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css"/>
+    <!-- Load AngularJS -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type="text/javascript">
+      var app = angular.module("CustomerManagement", []);
+
+      //Controller Part
+      app.controller("CustomerManagementController", function ($scope, $http) {
+
+        //Initialize page with default data which is blank in this example
+        $scope.customers = [];
+
+        $scope.form = {
+          name: "",
+          last: "",
+          email: "",
+          status: "LIVING"
+        };
+
+        //Now load the data from server
+        _refreshPageData();
+
+        //HTTP POST methods for add customers
+        $scope.add = function () {
+          var data = { "name": $scope.form.name, "last": $scope.form.last, "email": $scope.form.email, "status": $scope.form.status };
+
+          $http({
+            method: "POST",
+            url: '/customers',
+            data: angular.toJson(data),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }).then(_success, _error);
+        };
+
+        /* Private Methods */
+        //HTTP GET- get all customers collection
+        function _refreshPageData() {
+          $http({
+            method: 'GET',
+            url: '/customers'
+          }).then(function successCallback(response) {
+            $scope.customers = response.data;
+          }, function errorCallback(response) {
+            console.log(response.statusText);
+          });
+        }
+
+        function _success(response) {
+          _refreshPageData();
+          _clearForm();
+        }
+
+        function _error(response) {
+          alert(response.data.message || response.statusText);
+        }
+
+        //Clear the form
+        function _clearForm() {
+          $scope.form.name = "";
+          $scope.form.last = "";
+          $scope.form.email = "";
+          $scope.form.status = "LIVING";
+        }
+      });
+    </script>
+</head>
+<body ng-app="CustomerManagement" ng-controller="CustomerManagementController">
+
+<div class="container">
+    <h1>REST Service - Customer</h1>
+
+    <h3>Add a customer</h3>
+    <form ng-submit="add()">
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Name" ng-model="form.name" size="60"/></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Last Name" ng-model="form.last" size="60"/></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Email" ng-model="form.email" size="60"/></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Status" ng-model="form.status" size="60"/></div>
+        </div>
+        <input type="submit" value="Save"/>
+    </form>
+
+    <h3>Customer List</h3>
+    <div class="row">
+        <div class="col-2">Name</div>
+        <div class="col-2">Last Name</div>
+        <div class="col-3">Email</div>
+        <div class="col-3">Status</div>
+    </div>
+    <div class="row" ng-repeat="customer in customers">
+        <div class="col-2">{{ customer.name }}</div>
+        <div class="col-2">{{ customer.last }}</div>
+        <div class="col-3">{{ customer.email }}</div>
+        <div class="col-3">{{ customer.status }}</div>
+    </div>
+</div>
+
+</body>
+</html>

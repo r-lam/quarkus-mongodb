@@ -1,0 +1,4 @@
+META-INF/panache-archive.marker
+org/itm/Status.class
+org/itm/Customer.class
+org/itm/CustomerResource.class
